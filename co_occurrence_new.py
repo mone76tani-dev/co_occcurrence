@@ -172,7 +172,7 @@ for node, (x, y) in pos_100.items():
     net_overall.add_node(
         node,
         label=node,
-        group=comm_id,
+        group=comm_id, #com_idでPyvisのよって自動的に色分けされている
         title=f"Tag: {node}<br>Community: {comm_id}",
         x=float(x) * 1000,
         y=float(y) * 1000,
