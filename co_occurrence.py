@@ -12,15 +12,24 @@ from collections import Counter
 import networkx as nx
 from pyvis.network import Network
 from networkx.algorithms.community import louvain_communities
+import os
 
 # ---------------------------
 # 0. ファイルパス
 # ---------------------------
 DATA_PATH = "/Users/monetanikawa/startup_location_analysis/python_project_startup_location/非上場スタートアップ_2014以降(タグ付き).csv"
 
+# 出力ディレクトリ
+OUTPUT_DIR = "co_occurrence_output"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 # 出力ファイル名
-HTML_OVERALL_100 = "cooccurrence_network_overall_100plus.html"
-HTML_COMM_PREFIX = "cooccurrence_network_community_"  # + {id}.html
+HTML_OVERALL_100 = os.path.join(
+    OUTPUT_DIR, "cooccurrence_network_overall_100plus.html"
+)
+HTML_COMM_PREFIX = os.path.join(
+    OUTPUT_DIR, "cooccurrence_network_community_"  # + {id}.html
+)
 
 # ---------------------------
 # 1. データ読み込み
@@ -94,10 +103,13 @@ for i, comm in enumerate(communities):
         tag_to_comm[tag] = i
 
 summary_df = pd.DataFrame(summary_rows)
+summary_df.to_csv(
+    os.path.join(OUTPUT_DIR, "community_summary_louvain.csv"),
+    index=False,
+    encoding="utf-8-sig"
+)
 print("\n▼コミュニティ概要（上位タグ）")
 print(summary_df)
-
-summary_df.to_csv("community_summary_louvain.csv", index=False, encoding="utf-8-sig")
 
 # ---------------------------
 # 6. タグ→コミュニティ 対応CSV
@@ -105,7 +117,11 @@ summary_df.to_csv("community_summary_louvain.csv", index=False, encoding="utf-8-
 tag_comm_df = pd.DataFrame(
     [{"tag": tag, "community_id": comm_id} for tag, comm_id in tag_to_comm.items()]
 )
-tag_comm_df.to_csv("tag_communities_all_edges_louvain.csv", index=False, encoding="utf-8-sig")
+tag_comm_df.to_csv(
+    os.path.join(OUTPUT_DIR, "tag_communities_all_edges_louvain.csv"),
+    index=False,
+    encoding="utf-8-sig"
+)
 
 # ---------------------------
 # 7. 全体ネットワーク（共起100以上のみ）の HTML 可視化（静止）
@@ -253,11 +269,15 @@ df["コミュニティIDリスト_str"] = df["コミュニティIDリスト"].ap
     lambda li: ",".join(str(x) for x in li)
 )
 
-df.to_csv("startups_with_communities_louvain.csv", index=False, encoding="utf-8-sig")
+df.to_csv(
+    os.path.join(OUTPUT_DIR, "startups_with_communities_louvain.csv"),
+    index=False,
+    encoding="utf-8-sig"
+)
 
 print("\n=== 完了!! ===")
-print("・タグ×コミュニティ → tag_communities_all_edges_louvain.csv")
-print("・企業×コミュニティ → startups_with_communities_louvain.csv")
-print("・コミュニティ概要 → community_summary_louvain.csv")
+print(f"・タグ×コミュニティ → {os.path.join(OUTPUT_DIR, 'tag_communities_all_edges_louvain.csv')}")
+print(f"・企業×コミュニティ → {os.path.join(OUTPUT_DIR, 'startups_with_communities_louvain.csv')}")
+print(f"・コミュニティ概要 → {os.path.join(OUTPUT_DIR, 'community_summary_louvain.csv')}")
 print(f"・全体ネットワーク(共起>= {THRESHOLD_OVERALL}) → {HTML_OVERALL_100}")
 print(f"・コミュニティ別ネットワーク → {HTML_COMM_PREFIX}{{community_id}}.html")
