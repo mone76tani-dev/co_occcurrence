@@ -1,0 +1,9 @@
+# 出力結果（CSV / HTML）
+co_occurrence_output/
+
+# Mac
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
